@@ -6,6 +6,12 @@ import cookielib
 from bs4 import BeautifulSoup
 import requests
 import html2text
+import sys
+from os import environ
+from goodreads_api_call import get_goodreads_book_id
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 
 br = mechanize.Browser()
@@ -28,8 +34,32 @@ br.open('https://sfpl.bibliocommons.com/user/login')
 br.select_form(nr=2)
 
 
-br.form['name'] = 'barcode'
-br.form['user_pin'] = 'pin'
 
-response = br.submit()
+br.form['name'] = environ['LIBRARY_BARCODE']
+br.form['user_pin'] = environ['LIBRARY_PIN']
+
+br.submit()
+
+r = requests.get('https://sfpl.bibliocommons.com/collection/show/718567772_jilberar/library/for_later')
+
+data = r.text
+
+soup = BeautifulSoup(data, "html5lib")
+
+mydivs = soup.findAll('div', {'class': 'info'})
+
+my_books = []
+
+for div in mydivs:
+	book_title = div.find('a')['title']
+	book_title = book_title[:-7]
+	my_books.append(book_title)
+
+get_goodreads_book_id(my_books)
+
+
+
+
+
+
 
