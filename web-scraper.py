@@ -48,18 +48,19 @@ soup = BeautifulSoup(data, "html5lib")
 
 mydivs = soup.findAll('div', {'class': 'info'})
 
-my_books = []
+my_books = {}
 
 for div in mydivs:
-	book_title = div.find('a')['title']
+
+	book_title= div.find('a')['title']
 	book_title = book_title[:-7]
-	my_books.append(book_title)
+
+	author = div.find(testid='author_search')
+	author = author.string
+
+	my_books[book_title] = author
 
 get_goodreads_book_id(my_books)
-
-
-
-
 
 
 
