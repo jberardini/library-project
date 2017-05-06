@@ -2,7 +2,7 @@ from os import environ
 import xmltodict
 import requests
 
-api_key = environ["GOODREADS_KEY"]
+
 
 
 def get_goodreads_book_id(books_list):
