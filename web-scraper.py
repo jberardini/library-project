@@ -60,7 +60,8 @@ for div in mydivs:
 
 	my_books[book_title] = author
 
-get_goodreads_book_id(my_books)
+print get_goodreads_book_id(my_books)
+
 
 
 
