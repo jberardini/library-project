@@ -6,26 +6,27 @@ import rauth
 GOODREADS_KEY = environ["GOODREADS_KEY"]
 GOODREADS_SECRET = environ["GOODREADS_SECRET"]
 
-goodreads = rauth.OAuth2Service(
-		client_id = GOODREADS_KEY,
-		client_secret = GOODREADS_SECRET,
-		name = 'goodreads',
-		authorize_url = 'http://www.goodreads.com/oauth/authorize',
-		access_token_url = 'http://www.goodreads.com/oauth/access_token',
-		base_url = 'http://www.goodreads.com/' 
-		)
+goodreads = rauth.OAuth1Service(
+	consumer_key = GOODREADS_KEY,
+	consumer_secret = GOODREADS_SECRET,
+	name = 'goodreads',
+	access_token_url = 'http://www.goodreads.com/oauth/access_token',
+	authorize_url = 'http://www.goodreads.com/oauth/authorize',
+        request_token_url = 'http://www.goodreads.com/oauth/request_token',
+	base_url = 'http://www.goodreads.com/' 
+)
 
-# request_token, request_token_secret = goodreads.get_request_token(header_auth=True)
+request_token, request_token_secret = goodreads.get_request_token(header_auth=True)
 
-authorize_url = goodreads.get_authorize_url()
+authorize_url = goodreads.get_authorize_url(request_token)
 
 print "Visit this URL in your browser " + authorize_url
 accepted = 'n'
 while accepted == 'n':
 	print "Have you authorized me? (y/n) "
 	accepted = raw_input()
-session = goodreads.get_auth_session()
 
+session = goodreads.get_auth_session(request_token, request_token_secret)
 
 def get_goodreads_book_id(books_list):
 
