@@ -1,32 +1,15 @@
-import xmltodict
 import requests
 from os import environ
 import rauth
+# import xmltodict
+import goodreads
 
 GOODREADS_KEY = environ["GOODREADS_KEY"]
 GOODREADS_SECRET = environ["GOODREADS_SECRET"]
 
-goodreads = rauth.OAuth1Service(
-	consumer_key = GOODREADS_KEY,
-	consumer_secret = GOODREADS_SECRET,
-	name = 'goodreads',
-	access_token_url = 'http://www.goodreads.com/oauth/access_token',
-	authorize_url = 'http://www.goodreads.com/oauth/authorize',
-        request_token_url = 'http://www.goodreads.com/oauth/request_token',
-	base_url = 'http://www.goodreads.com/' 
-)
+gr = goodreads.GoodreadsApi(GOODREADS_KEY, GOODREADS_SECRET)
 
-request_token, request_token_secret = goodreads.get_request_token(header_auth=True)
-
-authorize_url = goodreads.get_authorize_url(request_token)
-
-print "Visit this URL in your browser " + authorize_url
-accepted = 'n'
-while accepted == 'n':
-	print "Have you authorized me? (y/n) "
-	accepted = raw_input()
-
-session = goodreads.get_auth_session(request_token, request_token_secret)
+gr.authorize()
 
 def get_goodreads_book_id(books_list):
 
@@ -54,14 +37,13 @@ def get_goodreads_book_id(books_list):
 
 	return book_ids
 
-def add_book_to_shelf(book_ids, session):
+def add_book_to_shelf(book_ids):
 
 	for book_id in book_ids:
-		data = {'name': 'to-read', 'book_id': book_id}
-		response = session.post('http://www.goodreads.com/shelf/add_to_shelf.xml', data)
+		gr.add_book_to_shelf(book_id, "to-read")
 
 
-add_book_to_shelf([18114322], session)
+add_book_to_shelf([18114323])
 
 
 
