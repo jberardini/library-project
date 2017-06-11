@@ -1,20 +1,24 @@
 import rauth
+import xmltodict
+
+API_BASE_URL = 'http://www.goodreads.com/'
 
 class GoodreadsApi():
 	def __init__(self, key, secret):
+
+                self.key = key
 		self.service = rauth.OAuth1Service(
 			consumer_key = key,
 			consumer_secret = secret,
-			name = 'goodreads',
-			access_token_url = 'http://www.goodreads.com/oauth/access_token',
-			authorize_url = 'http://www.goodreads.com/oauth/authorize',
-		    request_token_url = 'http://www.goodreads.com/oauth/request_token',
-			base_url = 'http://www.goodreads.com/' 
+			name = 'libsync',
+			access_token_url = API_BASE_URL + 'oauth/access_token',
+			authorize_url = API_BASE_URL + 'oauth/authorize',
+		        request_token_url = API_BASE_URL + 'oauth/request_token',
+			base_url = API_BASE_URL
 		)
 
 	def authorize(self):
 		request_token, request_token_secret = self.service.get_request_token(header_auth=True)
-
 		authorize_url = self.service.get_authorize_url(request_token)
 
 		print "Visit this URL in your browser " + authorize_url
@@ -27,9 +31,40 @@ class GoodreadsApi():
 
 	def add_book_to_shelf(self, book_id, shelf_name):
 		data = {'name': shelf_name, 'book_id': book_id}
-		response = self.session.post('http://www.goodreads.com/shelf/add_to_shelf.xml', data)
+                api_url = API_BASE_URL + 'shelf/add_to_shelf.xml'
+		response = self.session.post(api_url, data)
 
-		print response
 		return response.status_code == 201
 
+        def search_by_title(self, book_title):
+                """takes a book title and returns a list of dicts like:
+                [
+                  {
+                    id: integer
+                    books_count: integer
+                    ratings_count: integer
+                    text_reviews_count: integer
+                    original_publication_year: integer
+                    original_publication_month: integer
+                    original_publication_day: integer
+                    average_rating: float
+                    best_book: {
+                      id: integer
+                      title: string
+                      author: {
+                        id: integer
+                        name: string
 
+                      }
+                      image_url: string
+                      small_image_url: string
+                    }
+                  }
+                ]
+                """
+                payload = {'q': book_title}
+		response = self.session.get(API_BASE_URL + 'search/index.xml', params=payload)
+                print response.status_code
+                print response.text
+		search_result = xmltodict.parse(response.text)
+		return search_result['GoodreadsResponse']['search']['results']['work']
