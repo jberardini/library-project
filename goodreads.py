@@ -5,8 +5,8 @@ API_BASE_URL = 'http://www.goodreads.com/'
 
 class GoodreadsApi():
 	def __init__(self, key, secret):
-
-                self.key = key
+                self.consumer_key = key
+                self.consumer_secret = secret
 		self.service = rauth.OAuth1Service(
 			consumer_key = key,
 			consumer_secret = secret,
@@ -18,16 +18,29 @@ class GoodreadsApi():
 		)
 
 	def authorize(self):
-		request_token, request_token_secret = self.service.get_request_token(header_auth=True)
-		authorize_url = self.service.get_authorize_url(request_token)
+                try:
+                        session_file = open(".grsession", "r")
+                        saved_session = session_file.readline()
+                        [access_token, access_token_secret] = saved_session.split(":")
+                        print("got session! (" + access_token + ", " + access_token_secret + ")")
+                        self.session = rauth.OAuth1Session(self.consumer_key, self.consumer_secret, access_token, access_token_secret)
+                except IOError as err:
+                        session_file = open(".grsession", "w")
+                        # have to open a new session
+                        request_token, request_token_secret = self.service.get_request_token(header_auth=True)
+                        authorize_url = self.service.get_authorize_url(request_token)
 
-		print "Visit this URL in your browser " + authorize_url
-		accepted = 'n'
-		while accepted == 'n':
-			print "Have you authorized me? (y/n) "
-			accepted = raw_input()
+		        print "Visit this URL in your browser " + authorize_url
+		        accepted = 'n'
+		        while accepted == 'n':
+			        print "Have you authorized me? (y/n) "
+			        accepted = raw_input()
 
-		self.session = self.service.get_auth_session(request_token, request_token_secret)
+                        access_tok, access_tok_secret = self.service.get_access_token(request_token, request_token_secret)
+                        self.session = rauth.OAuth1Session(self.consumer_key, self.consumer_secret, access_tok, access_tok_secret)
+
+                        session_file.write(access_tok + ":" + access_tok_secret)
+                        session_file.close()
 
 	def add_book_to_shelf(self, book_id, shelf_name):
 		data = {'name': shelf_name, 'book_id': book_id}

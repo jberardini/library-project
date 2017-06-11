@@ -1,3 +1,4 @@
 *.pyc
 secrets.sh
 iron/
+/.grsession
