@@ -1,11 +1,19 @@
 from os import environ
 import rauth
 import goodreads
+import library
 
 GOODREADS_KEY = environ["GOODREADS_KEY"]
 GOODREADS_SECRET = environ["GOODREADS_SECRET"]
+LIBRARY_BARCODE = environ["LIBRARY_BARCODE"]
+LIBRARY_PIN = environ["LIBRARY_PIN"]
 
-print GOODREADS_SECRET
+lib = library.Library()
+
+lib.log_in(LIBRARY_BARCODE, LIBRARY_PIN)
+
+library_books = lib.scrape_shelf()
+
 
 gr = goodreads.GoodreadsApi(GOODREADS_KEY, GOODREADS_SECRET)
 
