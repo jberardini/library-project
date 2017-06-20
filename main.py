@@ -8,17 +8,6 @@ GOODREADS_SECRET = environ["GOODREADS_SECRET"]
 LIBRARY_BARCODE = environ["LIBRARY_BARCODE"]
 LIBRARY_PIN = environ["LIBRARY_PIN"]
 
-lib = library.Library()
-
-lib.log_in(LIBRARY_BARCODE, LIBRARY_PIN)
-
-library_books = lib.scrape_shelf()
-
-
-gr = goodreads.GoodreadsApi(GOODREADS_KEY, GOODREADS_SECRET)
-
-gr.authorize()
-
 def get_goodreads_book_id(books_list):
 
 	book_ids = []
@@ -35,17 +24,32 @@ def get_goodreads_book_id(books_list):
 				if match['ratings_count']['#text'] > 1000:
 					goodreads_id = match['best_book']['id']['#text']
 					book_ids.append(goodreads_id)
-					book_titles.append(match['best_book'])
+					# book_titles.append(match['best_book'])
 
 				break
 
 	return book_ids
 
+
 def add_book_to_shelf(book_ids):
 
 	for book_id in book_ids:
+		print book_id
 		gr.add_book_to_shelf(book_id, "to-read")
 
+
+lib = library.Library()
+
+lib.log_in(LIBRARY_BARCODE, LIBRARY_PIN)
+
+library_books = lib.scrape_shelf()
+
+gr = goodreads.GoodreadsApi(GOODREADS_KEY, GOODREADS_SECRET)
+
+gr.authorize()
+
+gr_book_ids = get_goodreads_book_id(library_books)
+print gr_book_ids
 
 add_book_to_shelf([18114323])
 
